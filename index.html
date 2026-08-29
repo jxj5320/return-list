@@ -1,0 +1,1206 @@
+<!-- GitHub Pages 전용 배포본입니다 (바코드 촬영/사진첨부 인식용 fetch 호출 때문에
+     claude.ai 아티팩트 링크에서는 이 기능이 작동하지 않습니다 — 그쪽 링크에는
+     이 파일을 올리지 마세요. 기존 claude.ai 회송리스트는 이 기능 없이 그대로 둡니다. -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>회송리스트</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gothic+A1:wght@400;500;600;700;800;900&family=Nanum+Gothic+Coding:wght@400;700&display=swap">
+<style>
+  :root {
+    --paper: #EFF1EC;
+    --paper-raised: #FBFCFA;
+    --ink: #1B211F;
+    --ink-soft: #656C68;
+    --ink-faint: #96988E;
+    --line: #D1D6CD;
+    --line-soft: #E4E7E0;
+    --accent: #35648F;
+    --accent-ink: #F5F9FD;
+    --input-bg: #FFFFFF;
+    --shadow: rgba(27, 33, 31, 0.10);
+    color-scheme: light;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #14181A;
+      --paper-raised: #1E2224;
+      --ink: #E8EAE4;
+      --ink-soft: #9CA39C;
+      --ink-faint: #6C736C;
+      --line: #333A38;
+      --line-soft: #262B29;
+      --accent: #6FA3D8;
+      --accent-ink: #0D1D2B;
+      --input-bg: #252A2C;
+      --shadow: rgba(0, 0, 0, 0.4);
+      color-scheme: dark;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper: #14181A;
+    --paper-raised: #1E2224;
+    --ink: #E8EAE4;
+    --ink-soft: #9CA39C;
+    --ink-faint: #6C736C;
+    --line: #333A38;
+    --line-soft: #262B29;
+    --accent: #6FA3D8;
+    --accent-ink: #0D1D2B;
+    --input-bg: #252A2C;
+    --shadow: rgba(0, 0, 0, 0.4);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  html { background: var(--paper); }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Gothic A1', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: 96px;
+  }
+
+  .code {
+    font-family: 'Nanum Gothic Coding', 'Noto Sans Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .app {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 18px 16px 8px;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .brand-mark {
+    font-weight: 900;
+    font-size: 1.5rem;
+    letter-spacing: -0.01em;
+  }
+
+  .brand-mark::after {
+    content: '';
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    margin-left: 7px;
+    border-radius: 2px;
+    background: var(--accent);
+    transform: translateY(-10px);
+  }
+
+  .brand-sub {
+    font-size: 0.86rem;
+    color: var(--ink-faint);
+    font-weight: 500;
+    letter-spacing: 0.01em;
+  }
+
+  /* ---------- preview card ---------- */
+
+  .preview-card {
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    margin-bottom: 18px;
+    box-shadow: 0 1px 3px var(--shadow);
+    overflow: hidden;
+  }
+
+  .preview-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 12px 14px 10px;
+    border-bottom: 1px dashed var(--line);
+    flex-wrap: wrap;
+  }
+
+  .preview-head h2 {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    letter-spacing: 0.02em;
+  }
+
+  .preview-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+  }
+
+  .fill-count {
+    font-size: 0.86rem;
+    color: var(--ink-faint);
+    font-family: 'Nanum Gothic Coding', monospace;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .btn {
+    appearance: none;
+    border: 1px solid var(--line);
+    background: var(--paper-raised);
+    color: var(--ink);
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 0.95rem;
+    padding: 9px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background .15s ease, transform .1s ease, opacity .15s ease;
+  }
+
+  .btn:active { transform: scale(0.97); }
+  .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .btn-ghost { color: var(--ink-soft); }
+  .btn-ghost:hover { background: var(--line-soft); }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .btn-primary:hover { opacity: 0.92; }
+
+  .row-strip {
+    display: flex;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-bottom: 1px solid var(--line-soft);
+  }
+
+  .row-cell {
+    flex: 0 0 auto;
+    min-width: 108px;
+    max-width: 176px;
+    padding: 10px 12px;
+    border-right: 1px solid var(--line-soft);
+  }
+
+  .row-cell:last-child { border-right: none; }
+
+  .row-cell-label {
+    font-size: 0.66rem;
+    color: var(--ink-faint);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+    margin-bottom: 4px;
+  }
+
+  .row-cell-value {
+    font-family: 'Nanum Gothic Coding', monospace;
+    font-size: 0.88rem;
+    color: var(--ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .row-cell-value.empty { color: var(--ink-faint); }
+
+  .preview-hint {
+    padding: 8px 14px 12px;
+    font-size: 0.78rem;
+    color: var(--ink-faint);
+  }
+
+  /* ---------- form ---------- */
+
+  .section-card {
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--accent);
+    border-radius: 10px;
+    margin-bottom: 14px;
+    overflow: hidden;
+    box-shadow: 0 1px 2px var(--shadow);
+  }
+
+  .section-head {
+    padding: 12px 16px;
+    font-weight: 800;
+    font-size: 1.02rem;
+    letter-spacing: 0.02em;
+    background: var(--line-soft);
+  }
+
+  .field-row {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    padding: 12px 16px;
+    border-top: 1px solid var(--line-soft);
+  }
+
+  .field-label {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    font-weight: 700;
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+  }
+
+  .field-label .col-no {
+    font-family: 'Nanum Gothic Coding', monospace;
+    font-size: 0.72rem;
+    color: var(--ink-faint);
+  }
+
+  .text-input {
+    width: 100%;
+    border: 1px solid var(--line);
+    background: var(--input-bg);
+    border-radius: 9px;
+    padding: 10px 11px;
+    font-family: inherit;
+    font-size: 1rem;
+    color: var(--ink);
+    outline: none;
+    transition: border-color .12s ease, box-shadow .12s ease;
+  }
+
+  .text-input.code { font-family: 'Nanum Gothic Coding', monospace; }
+
+  .text-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
+  }
+
+  .text-input::placeholder { color: var(--ink-faint); }
+
+  .autocomplete-wrap {
+    position: relative;
+  }
+
+  .suggest-list {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 4px);
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    box-shadow: 0 4px 14px var(--shadow);
+    max-height: 220px;
+    overflow-y: auto;
+    z-index: 5;
+  }
+
+  .suggest-list.show { display: block; }
+
+  .suggest-item {
+    padding: 10px 12px;
+    font-size: 0.94rem;
+    color: var(--ink);
+    border-top: 1px solid var(--line-soft);
+    cursor: pointer;
+  }
+
+  .suggest-item:first-child { border-top: none; }
+  .suggest-item:active { background: var(--line-soft); }
+
+  .chip-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .chip-group.quick {
+    margin-top: 2px;
+  }
+
+  .chip-sm {
+    padding: 6px 13px;
+    font-size: 0.8rem;
+  }
+
+  .chip-sm::before {
+    content: '+ ';
+    opacity: 0.6;
+  }
+
+  .chip-sm.selected::before {
+    content: '✓ ';
+    opacity: 1;
+  }
+
+  .chip {
+    appearance: none;
+    border: 1px solid var(--line);
+    background: var(--input-bg);
+    color: var(--ink-soft);
+    font-family: 'Nanum Gothic Coding', monospace;
+    font-weight: 700;
+    font-size: 0.9rem;
+    padding: 9px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background .12s ease, color .12s ease, border-color .12s ease, transform .1s ease;
+  }
+
+  .chip:active { transform: scale(0.96); }
+  .chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .chip.selected {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--accent-ink);
+  }
+
+  /* ---------- sticky action bar ---------- */
+
+  .stickybar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+    background: var(--paper-raised);
+    border-top: 1px solid var(--line);
+    box-shadow: 0 -2px 10px var(--shadow);
+  }
+
+  .stickybar-inner {
+    width: 100%;
+    max-width: 640px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sticky-count {
+    font-family: 'Nanum Gothic Coding', monospace;
+    font-size: 0.84rem;
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .btn-sticky {
+    padding: 11px 18px;
+    font-size: 0.96rem;
+    margin-left: auto;
+  }
+
+  .toast {
+    position: fixed;
+    left: 50%;
+    bottom: 78px;
+    transform: translate(-50%, 8px);
+    background: var(--ink);
+    color: var(--paper);
+    font-size: 0.88rem;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 999px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .18s ease, transform .18s ease;
+    z-index: 20;
+    max-width: 88%;
+    text-align: center;
+  }
+
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+
+  @media (min-width: 720px) {
+    .app { padding-top: 32px; }
+  }
+
+  /* ---------- scan / attach (Vision 인식) ---------- */
+
+  .icon-btn {
+    appearance: none;
+    border: 1px solid var(--line);
+    background: var(--paper-raised);
+    color: var(--ink-soft);
+    font-size: 1rem;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .icon-btn:active { transform: scale(0.94); }
+
+  .scan-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 2px;
+  }
+
+  .btn-scan {
+    flex: 1;
+    font-size: 0.84rem;
+    font-weight: 600;
+    padding: 8px 10px;
+  }
+
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.68);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    z-index: 200;
+  }
+
+  .modal-overlay.show { display: flex; }
+
+  .modal-card {
+    background: var(--paper-raised);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px;
+    width: 100%;
+    max-width: 420px;
+    max-height: 86vh;
+    overflow-y: auto;
+    box-shadow: 0 12px 40px var(--shadow);
+  }
+
+  .modal-card h3 {
+    margin: 0 0 14px;
+    font-size: 1.05rem;
+    font-weight: 800;
+  }
+
+  .modal-label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--ink-soft);
+    margin: 0 0 6px;
+  }
+
+  .modal-field {
+    margin-bottom: 14px;
+  }
+
+  .modal-field input, .modal-field select {
+    width: 100%;
+    border: 1px solid var(--line);
+    background: var(--input-bg);
+    color: var(--ink);
+    border-radius: 9px;
+    padding: 10px 11px;
+    font-family: inherit;
+    font-size: 0.95rem;
+  }
+
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .modal-actions .btn { flex: 1; }
+
+  .hint-line {
+    font-size: 0.78rem;
+    color: var(--ink-faint);
+    line-height: 1.5;
+  }
+
+  #scanVideo, #captureCanvas {
+    width: 100%;
+    max-width: 480px;
+    border-radius: 12px;
+    background: #000;
+  }
+
+  #captureCanvas { display: none; }
+</style>
+
+<div class="app">
+  <header class="topbar">
+    <span class="brand-mark">회송리스트</span>
+    <span style="display:flex; align-items:center; gap:10px;">
+      <button class="icon-btn" id="settingsBtn" type="button" title="바코드 인식 설정" aria-label="바코드 인식 설정">⚙️</button>
+      <span class="brand-sub code" id="todayLabel"></span>
+    </span>
+  </header>
+
+  <section class="preview-card">
+    <div class="preview-head">
+      <h2>복사할 한 줄</h2>
+      <div class="preview-actions">
+        <span class="fill-count" id="fillCount">0/14 입력됨</span>
+        <button class="btn btn-ghost" id="resetBtn" type="button">초기화</button>
+        <button class="btn btn-primary" id="copyBtn" type="button">복사</button>
+      </div>
+    </div>
+    <div class="row-strip" id="rowStrip"></div>
+    <div class="preview-hint">가로로 넘기면 전체 열이 보여요 · 카톡/팀즈로 보냈다가 PC에서 다시 복사해도 안전해요 · 엑셀에 붙인 뒤 데이터 → 텍스트 나누기 → 기타 "|" 로 나누세요</div>
+  </section>
+
+  <section class="section-card">
+    <div class="section-head">회송 항목 입력</div>
+    <div id="fieldsRoot"></div>
+  </section>
+</div>
+
+<footer class="stickybar">
+  <div class="stickybar-inner">
+    <span class="sticky-count code" id="stickyFillCount">0/14 입력됨</span>
+    <button class="btn btn-ghost" id="stickyResetBtn" type="button">초기화</button>
+    <button class="btn btn-primary btn-sticky" id="stickyCopyBtn" type="button">복사</button>
+  </div>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<div class="modal-overlay" id="scanModal">
+  <div class="modal-card">
+    <h3>📷 바코드 촬영</h3>
+    <video id="scanVideo" playsinline autoplay muted></video>
+    <canvas id="captureCanvas"></canvas>
+    <div class="modal-actions" style="margin-top:14px;">
+      <button class="btn btn-ghost" id="btnCancelScan" type="button">취소</button>
+      <button class="btn btn-primary" id="btnCapture" type="button">촬영</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="settingsModal">
+  <div class="modal-card">
+    <h3>⚙️ 바코드 인식 설정</h3>
+    <div class="modal-field">
+      <label class="modal-label">Anthropic API 키</label>
+      <input type="password" id="apiKeyInput" placeholder="sk-ant-...">
+    </div>
+    <div class="modal-field">
+      <label class="modal-label">인식 모델</label>
+      <select id="modelSelect">
+        <option value="claude-haiku-4-5">claude-haiku-4-5 (빠름, 기본)</option>
+        <option value="claude-sonnet-4-5">claude-sonnet-4-5 (더 정확함, 느림)</option>
+      </select>
+    </div>
+    <div class="hint-line" style="margin:-6px 0 14px;">본인 계정의 API 키를 직접 넣으면 촬영/사진첨부로 상품바코드를 자동 인식해요. 키는 이 기기 브라우저에만 저장되고 서버로 전송되지 않아요. 인식 1회당 본인 API 사용량이 소량 소모돼요.</div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="btnCloseSettings" type="button">닫기</button>
+      <button class="btn btn-primary" id="btnSaveSettings" type="button">저장</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var STORAGE_KEY = 'return_list_state_v1';
+
+  // Column order matches the sheet exactly, left to right — this is what
+  // makes a pasted row land in the right cells.
+  var COLUMNS = [
+    { key: 'status', label: '처리현황', type: 'text', placeholder: '예: 자체폐기예정', default: '회송대기' },
+    { key: 'process', label: '발생공정', type: 'text', placeholder: '예: IB', quickOptions: ['IB', 'QC'], joinSep: ',' },
+    { key: 'worker', label: '작업자', type: 'text', placeholder: '예: Leo', quickSingle: ['강리우'] },
+    { key: 'temp', label: '온도', type: 'chip', options: ['FROZEN', 'CHILLED', 'AMBIENT'] },
+    { key: 'inDate', label: '입고일자', type: 'date' },
+    { key: 'company', label: '업체명', type: 'text', placeholder: '예: (주)농협목우촌(가공)', autocomplete: true },
+    { key: 'orderNo', label: '외부발주번호', type: 'numeric', placeholder: '숫자만 입력', default: '외부발주번호' },
+    { key: 'skuId', label: '외부 SKU ID', type: 'numeric', placeholder: '숫자만 입력', default: '외부 SKU ID' },
+    { key: 'barcode', label: '상품바코드', type: 'numeric', placeholder: '숫자만 입력', default: '상품바코드', scan: true },
+    { key: 'productName', label: '상품명', type: 'text', placeholder: '예: [로켓프레시] 목우촌 부대찌개모듬햄 1kg(냉동)', default: '***' },
+    { key: 'qty', label: '수량', type: 'numeric', placeholder: '숫자만 입력' },
+    { key: 'reason', label: '회송사유', type: 'text', placeholder: '예: 과착', quickOptions: ['과착', '오착', '유통기한 임박', '상품불량', '포장불량', '바코드 상이'], joinSep: ', ' },
+    { key: 'expiry', label: '비표/소비기한', type: 'date' },
+    { key: 'note', label: '비고', type: 'text', placeholder: '예: 자체폐기 공문 요청중', quickOptions: ['임의등록바코드'], joinSep: ', ' }
+  ];
+
+  // Deduped from the 업체명 column of the 회송현황 sheet. Matching is a
+  // plain substring search against these full names, so typing a short
+  // piece that's already inside the name — "우농", "삼림", "빙그레" — is
+  // enough to find it; no separate alias list needed.
+  var COMPANY_NAMES = [
+    '(주)농협목우촌(가공)',
+    '(주)빙그레',
+    '주식회사 씨21',
+    '주식회사 외갓집',
+    '롯데웰푸드 주식회사',
+    '(주)동원에프앤비',
+    'TAMSAA_농업회사법인 (주)한우물(CPLB)',
+    '맑은물에홀딩스 주식회사',
+    '농협안성_수박(부여조공)',
+    'TAMSAA_만인산농협산지유통센타(CPLB)',
+    'TAMSAA_주식회사 엘제이농산(CPLB)',
+    'TAMSAA_농업회사법인 (주)푸르본(CPLB)',
+    'TAMSAA_농업회사법인 주식회사 이리스팜(CPLB)',
+    '농협안성농식품물류센터',
+    'TAMSAA_농협안성농식품물류센터(CPLB)',
+    'TAMSAA_우농영농조합법인 (CPLB)',
+    '(주)풀무원식품',
+    '(주)사조대림',
+    '서울우유협동조합',
+    '(주)에스피씨삼립',
+    '씨제이제일제당(주)',
+    '남양유업(주)',
+    '매일유업 주식회사',
+    'TAMSAA_(주)엘제이농산(CPLB)'
+  ];
+
+  var values = {};
+  COLUMNS.forEach(function (c) { values[c.key] = c.default || ''; });
+
+  function safeGet(key) { try { return localStorage.getItem(key); } catch (e) { return null; } }
+  function safeSet(key, val) { try { localStorage.setItem(key, val); } catch (e) { /* ignore */ } }
+
+  function loadState() {
+    var raw = safeGet(STORAGE_KEY);
+    if (!raw) return;
+    try {
+      var saved = JSON.parse(raw) || {};
+      COLUMNS.forEach(function (c) {
+        if (typeof saved[c.key] === 'string') values[c.key] = saved[c.key];
+      });
+    } catch (e) { /* ignore */ }
+  }
+
+  function persistState() { safeSet(STORAGE_KEY, JSON.stringify(values)); }
+
+  function digitsOnly(v) { return v.replace(/[^0-9]/g, ''); }
+
+  // ============================================================
+  // 바코드 촬영/사진첨부 인식 (Claude Vision, 사용자 본인 API 키 사용)
+  //
+  // 이 페이지가 GitHub Pages 등 일반 웹 호스팅에서 열릴 때만 동작함 —
+  // api.anthropic.com으로의 fetch가 필요한데, claude.ai 아티팩트 링크로
+  // 열리는 배포본은 외부 fetch가 차단돼 있어서 여기선 항상
+  // "네트워크 요청이 차단되었습니다" 에러만 뜸. 정상 배포본에서만 씀.
+  // ============================================================
+
+  var SCAN_LS_KEYS = { apiKey: 'return_list_scan_api_key', model: 'return_list_scan_model' };
+
+  function loadScanSettings() {
+    return {
+      apiKey: safeGet(SCAN_LS_KEYS.apiKey) || '',
+      model: safeGet(SCAN_LS_KEYS.model) || 'claude-haiku-4-5'
+    };
+  }
+
+  var settingsModal = document.getElementById('settingsModal');
+  var apiKeyInput = document.getElementById('apiKeyInput');
+  var modelSelect = document.getElementById('modelSelect');
+
+  function openSettings() {
+    var s = loadScanSettings();
+    apiKeyInput.value = s.apiKey;
+    modelSelect.value = s.model;
+    settingsModal.classList.add('show');
+  }
+  function closeSettings() { settingsModal.classList.remove('show'); }
+
+  document.getElementById('settingsBtn').addEventListener('click', openSettings);
+  document.getElementById('btnCloseSettings').addEventListener('click', closeSettings);
+  document.getElementById('btnSaveSettings').addEventListener('click', function () {
+    safeSet(SCAN_LS_KEYS.apiKey, apiKeyInput.value.trim());
+    safeSet(SCAN_LS_KEYS.model, modelSelect.value);
+    closeSettings();
+    showToast('저장됐어요');
+  });
+
+  // 상품바코드는 이 앱에서 숫자만 쓰는 일반 상품 바코드라, 다른 프로젝트의
+  // 랙/토트 위치 라벨용 접두어 규칙은 가져오지 않고 단순하게 물어봄.
+  function buildScanPrompt() {
+    return [
+      '이 사진 속 라벨에 인쇄된 상품 바코드 번호를 정확히 읽어줘.',
+      '숫자로만 이루어진 바코드 번호 하나만 골라서 출력할 것.',
+      '바코드를 전혀 찾을 수 없으면 정확히 NONE 이라고만 출력할 것.',
+      '다른 설명 없이 바코드 번호(또는 NONE) 한 줄만 출력하고, 공백이나 줄바꿈을 넣지 말 것.'
+    ].join('\n');
+  }
+
+  async function recognizeBarcode(base64Image) {
+    var s = loadScanSettings();
+    if (!s.apiKey) throw new Error('API 키가 없어요');
+    var res;
+    try {
+      res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'x-api-key': s.apiKey,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: s.model,
+          max_tokens: 100,
+          messages: [{
+            role: 'user',
+            content: [
+              { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: base64Image } },
+              { type: 'text', text: buildScanPrompt() }
+            ]
+          }]
+        })
+      });
+    } catch (networkErr) {
+      throw new Error('네트워크 요청이 차단되었습니다 (이 사이트가 외부 API 호출을 막는 환경일 수 있어요)');
+    }
+    if (!res.ok) {
+      var errBody = null;
+      try { errBody = await res.json(); } catch (e) { /* ignore */ }
+      var msg = errBody && errBody.error && errBody.error.message ? errBody.error.message : ('HTTP ' + res.status);
+      if (res.status === 401) msg = 'API 키가 올바르지 않아요. 설정에서 확인해주세요.';
+      throw new Error(msg);
+    }
+    var data = await res.json();
+    var text = (data.content && data.content[0] && data.content[0].text) ? data.content[0].text : '';
+    text = text.replace(/\s+/g, '').trim();
+    if (!text || text.toUpperCase() === 'NONE') return null;
+    return text;
+  }
+
+  function canvasToBase64(canvas, quality) {
+    return canvas.toDataURL('image/jpeg', quality || 0.85).split(',')[1];
+  }
+
+  function downscaleFileToBase64(file, maxEdge, quality) {
+    return new Promise(function (resolve, reject) {
+      var url = URL.createObjectURL(file);
+      var img = new Image();
+      img.onload = function () {
+        URL.revokeObjectURL(url);
+        var scale = Math.min(1, maxEdge / Math.max(img.width, img.height));
+        var cw = Math.round(img.width * scale), ch = Math.round(img.height * scale);
+        var canvas = document.createElement('canvas');
+        canvas.width = cw; canvas.height = ch;
+        canvas.getContext('2d').drawImage(img, 0, 0, cw, ch);
+        resolve(canvasToBase64(canvas, quality));
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); reject(new Error('이미지를 불러올 수 없어요.')); };
+      img.src = url;
+    });
+  }
+
+  function applyScanResult(key, value) {
+    values[key] = value;
+    renderFields();
+    renderPreview();
+    persistState();
+  }
+
+  // ---------- 촬영 ----------
+  var scanModal = document.getElementById('scanModal');
+  var scanVideo = document.getElementById('scanVideo');
+  var captureCanvas = document.getElementById('captureCanvas');
+  var btnCapture = document.getElementById('btnCapture');
+  var scanStream = null;
+  var scanTargetKey = null;
+
+  async function startScan(key) {
+    var s = loadScanSettings();
+    if (!s.apiKey) { showToast('먼저 ⚙️ 설정에서 API 키를 등록해주세요'); openSettings(); return; }
+    scanTargetKey = key;
+    scanVideo.style.display = 'block';
+    captureCanvas.style.display = 'none';
+    btnCapture.disabled = false;
+    scanModal.classList.add('show');
+    try {
+      scanStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: 'environment' } } });
+      scanVideo.srcObject = scanStream;
+      await scanVideo.play();
+    } catch (e) {
+      showToast('카메라를 열 수 없어요: ' + e.message);
+      stopScan();
+    }
+  }
+
+  function stopScan() {
+    scanModal.classList.remove('show');
+    if (scanStream) { scanStream.getTracks().forEach(function (t) { t.stop(); }); scanStream = null; }
+  }
+
+  document.getElementById('btnCancelScan').addEventListener('click', stopScan);
+
+  btnCapture.addEventListener('click', async function () {
+    if (!scanVideo.videoWidth) return;
+    var maxEdge = 1100;
+    var vw = scanVideo.videoWidth, vh = scanVideo.videoHeight;
+    var scale = Math.min(1, maxEdge / Math.max(vw, vh));
+    var cw = Math.round(vw * scale), ch = Math.round(vh * scale);
+    captureCanvas.width = cw; captureCanvas.height = ch;
+    captureCanvas.getContext('2d').drawImage(scanVideo, 0, 0, cw, ch);
+    var base64 = canvasToBase64(captureCanvas);
+    var key = scanTargetKey;
+
+    scanVideo.style.display = 'none';
+    captureCanvas.style.display = 'block';
+    btnCapture.disabled = true;
+
+    try {
+      var value = await recognizeBarcode(base64);
+      stopScan();
+      if (!value) { showToast('바코드를 인식하지 못했어요 · 다시 촬영하거나 직접 입력하세요'); return; }
+      applyScanResult(key, value);
+      showToast('인식됐어요 · 확인 후 필요하면 고쳐주세요');
+    } catch (e) {
+      stopScan();
+      showToast('인식 실패: ' + e.message);
+    }
+  });
+
+  // ---------- 사진 첨부 ----------
+  async function handleAttachedPhoto(key, file) {
+    var s = loadScanSettings();
+    if (!s.apiKey) { showToast('먼저 ⚙️ 설정에서 API 키를 등록해주세요'); openSettings(); return; }
+    try {
+      showToast('인식 중...');
+      var base64 = await downscaleFileToBase64(file, 1100, 0.85);
+      var value = await recognizeBarcode(base64);
+      if (!value) { showToast('바코드를 인식하지 못했어요 · 다른 사진을 시도하거나 직접 입력하세요'); return; }
+      applyScanResult(key, value);
+      showToast('인식됐어요 · 확인 후 필요하면 고쳐주세요');
+    } catch (e) {
+      showToast('인식 실패: ' + e.message);
+    }
+  }
+
+  function pad2(n) { return n < 10 ? '0' + n : String(n); }
+
+  function renderDate() {
+    var d = new Date();
+    document.getElementById('todayLabel').textContent =
+      d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+  }
+
+  var fieldsRoot = document.getElementById('fieldsRoot');
+  var rowStrip = document.getElementById('rowStrip');
+  var fillCountEl = document.getElementById('fillCount');
+  var stickyFillCountEl = document.getElementById('stickyFillCount');
+
+  function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function renderFields() {
+    var html = '';
+    COLUMNS.forEach(function (c, i) {
+      html += '<div class="field-row">';
+      html += '<span class="field-label"><span class="col-no">' + (i + 1) + '</span>' + escapeHtml(c.label) + '</span>';
+      if (c.type === 'chip') {
+        html += '<div class="chip-group" data-key="' + c.key + '">';
+        c.options.forEach(function (opt) {
+          var sel = values[c.key] === opt;
+          html += '<button type="button" class="chip chip-single' + (sel ? ' selected' : '') + '" data-key="' + c.key + '" data-value="' + opt + '">' + opt + '</button>';
+        });
+        html += '</div>';
+      } else if (c.type === 'date') {
+        html += '<input class="text-input code" type="date" data-key="' + c.key + '" value="' + escapeHtml(values[c.key]) + '">';
+      } else if (c.type === 'numeric') {
+        html += '<input class="text-input code" type="text" inputmode="numeric" pattern="[0-9]*" placeholder="' + escapeHtml(c.placeholder || '') + '" data-key="' + c.key + '" value="' + escapeHtml(values[c.key]) + '">';
+      } else if (c.autocomplete) {
+        html += '<div class="autocomplete-wrap">';
+        html += '<input class="text-input" type="text" autocomplete="off" placeholder="' + escapeHtml(c.placeholder || '') + '" data-key="' + c.key + '" value="' + escapeHtml(values[c.key]) + '">';
+        html += '<div class="suggest-list" data-suggest-for="' + c.key + '"></div>';
+        html += '</div>';
+      } else {
+        html += '<input class="text-input" type="text" placeholder="' + escapeHtml(c.placeholder || '') + '" data-key="' + c.key + '" value="' + escapeHtml(values[c.key]) + '">';
+      }
+      // 촬영/사진첨부로 Claude Vision에게 라벨을 읽혀서 이 칸을 채움 — 인식
+      // 결과는 항상 위 텍스트 입력창에 그대로 들어가서 손으로 다시 고칠 수
+      // 있음 (사진이 지저분하면 잘못 읽을 수 있어서, 자동 인식 결과를
+      // 맹신하지 않도록).
+      if (c.scan) {
+        html += '<div class="scan-row">';
+        html += '<button type="button" class="btn btn-ghost btn-scan" data-scan-key="' + c.key + '">📷 촬영</button>';
+        html += '<button type="button" class="btn btn-ghost btn-scan" data-attach-key="' + c.key + '">🖼 사진 첨부</button>';
+        html += '</div>';
+        html += '<input type="file" accept="image/*" class="scan-file-input" data-file-key="' + c.key + '" style="display:none;">';
+      }
+      // quick-fill buttons — the text input above stays exactly as-is;
+      // these just insert/remove a common value with one tap so it
+      // doesn't have to be typed out every time.
+      if (c.quickOptions) {
+        var tokens = getTokens(values[c.key]);
+        html += '<div class="chip-group quick">';
+        c.quickOptions.forEach(function (opt) {
+          var sel = tokens.indexOf(opt) !== -1;
+          html += '<button type="button" class="chip chip-sm chip-toggle' + (sel ? ' selected' : '') + '" data-toggle-key="' + c.key + '" data-toggle-value="' + escapeHtml(opt) + '" data-sep="' + escapeHtml(c.joinSep) + '">' + escapeHtml(opt) + '</button>';
+        });
+        html += '</div>';
+      }
+      // single-value quick-fill — tapping sets the whole field to this
+      // value (tapping again clears it), for fields that only ever hold
+      // one value at a time (a status, a person), unlike the toggle list
+      // above. Reuses the same 온도 chip behaviour, just alongside a
+      // text input instead of replacing it.
+      if (c.quickSingle) {
+        html += '<div class="chip-group quick">';
+        c.quickSingle.forEach(function (opt) {
+          var sel = values[c.key] === opt;
+          html += '<button type="button" class="chip chip-sm chip-single' + (sel ? ' selected' : '') + '" data-key="' + c.key + '" data-value="' + escapeHtml(opt) + '">' + escapeHtml(opt) + '</button>';
+        });
+        html += '</div>';
+      }
+      html += '</div>';
+    });
+    fieldsRoot.innerHTML = html;
+
+    fieldsRoot.querySelectorAll('[data-scan-key]').forEach(function (btn) {
+      btn.addEventListener('click', function () { startScan(btn.getAttribute('data-scan-key')); });
+    });
+    fieldsRoot.querySelectorAll('[data-attach-key]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var key = btn.getAttribute('data-attach-key');
+        var fileInput = fieldsRoot.querySelector('.scan-file-input[data-file-key="' + key + '"]');
+        if (fileInput) fileInput.click();
+      });
+    });
+    fieldsRoot.querySelectorAll('.scan-file-input').forEach(function (fileInput) {
+      fileInput.addEventListener('change', function () {
+        var key = fileInput.getAttribute('data-file-key');
+        var file = this.files && this.files[0];
+        this.value = ''; // 같은 파일을 다시 골라도 change가 또 발생하도록
+        if (file) handleAttachedPhoto(key, file);
+      });
+    });
+
+    fieldsRoot.querySelectorAll('input[data-key]').forEach(function (input) {
+      var col = COLUMNS.filter(function (c) { return c.key === input.getAttribute('data-key'); })[0];
+      input.addEventListener('input', function (e) {
+        if (col.type === 'numeric') {
+          var pos = e.target.selectionStart;
+          var before = e.target.value.length;
+          e.target.value = digitsOnly(e.target.value);
+          var after = e.target.value.length;
+          e.target.setSelectionRange(pos - (before - after), pos - (before - after));
+        }
+        values[col.key] = e.target.value;
+        renderPreview();
+        persistState();
+        if (col.autocomplete) renderSuggestions(col.key, e.target.value);
+      });
+      if (col.autocomplete) {
+        input.addEventListener('focus', function (e) { renderSuggestions(col.key, e.target.value); });
+        input.addEventListener('blur', function () {
+          // small delay so a tap on a suggestion registers before the
+          // list disappears (blur fires first on mobile)
+          setTimeout(function () { hideSuggestions(col.key); }, 150);
+        });
+      }
+    });
+
+    fieldsRoot.querySelectorAll('.suggest-list').forEach(function (list) {
+      var key = list.getAttribute('data-suggest-for');
+      list.addEventListener('mousedown', function (e) {
+        var item = e.target.closest('.suggest-item');
+        if (!item) return;
+        e.preventDefault(); // keep the input's own blur from firing first
+        values[key] = item.getAttribute('data-value');
+        var input = fieldsRoot.querySelector('input[data-key="' + key + '"]');
+        if (input) input.value = values[key];
+        hideSuggestions(key);
+        renderPreview();
+        persistState();
+      });
+    });
+
+    fieldsRoot.querySelectorAll('.chip-single').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var key = btn.getAttribute('data-key');
+        var value = btn.getAttribute('data-value');
+        values[key] = (values[key] === value) ? '' : value;
+        renderFields();
+        renderPreview();
+        persistState();
+      });
+    });
+
+    fieldsRoot.querySelectorAll('.chip-toggle').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var key = btn.getAttribute('data-toggle-key');
+        var value = btn.getAttribute('data-toggle-value');
+        var sep = btn.getAttribute('data-sep');
+        toggleToken(key, value, sep);
+        renderFields();
+        renderPreview();
+        persistState();
+      });
+    });
+  }
+
+  // Quick-fill values are stored comma-separated inside the same text
+  // field the person can still type in by hand — so "IB" then "QC"
+  // tapped in turn becomes "IB,QC", matching what typing it out would give.
+  function getTokens(value) {
+    return String(value || '').split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+  }
+
+  function toggleToken(key, token, sep) {
+    var tokens = getTokens(values[key]);
+    var idx = tokens.indexOf(token);
+    if (idx === -1) tokens.push(token); else tokens.splice(idx, 1);
+    values[key] = tokens.join(sep);
+  }
+
+  // Company-name autocomplete — plain substring match against the saved
+  // list, so a short piece already inside the name ("우농", "삼림") finds it.
+  function renderSuggestions(key, query) {
+    var list = fieldsRoot.querySelector('.suggest-list[data-suggest-for="' + key + '"]');
+    if (!list) return;
+    var q = query.trim().toLowerCase();
+    var matches = q
+      ? COMPANY_NAMES.filter(function (name) { return name.toLowerCase().indexOf(q) !== -1; }).slice(0, 8)
+      : COMPANY_NAMES.slice(0, 8);
+    if (!matches.length) { list.innerHTML = ''; list.classList.remove('show'); return; }
+    list.innerHTML = matches.map(function (name) {
+      return '<div class="suggest-item" data-value="' + escapeHtml(name) + '">' + escapeHtml(name) + '</div>';
+    }).join('');
+    list.classList.add('show');
+  }
+
+  function hideSuggestions(key) {
+    var list = fieldsRoot.querySelector('.suggest-list[data-suggest-for="' + key + '"]');
+    if (list) list.classList.remove('show');
+  }
+
+  // Tab characters don't survive a round trip through a chat message —
+  // Teams/카톡 render whitespace and re-copying the message text loses the
+  // real tab byte, so a row relayed through chat lands in one Excel cell.
+  // "|" is an ordinary printable character, so it comes through a chat
+  // copy-paste intact; Excel's 텍스트 나누기(Text to Columns) with 기타
+  // 구분 기호 "|" then splits it reliably every time.
+  var ROW_DELIMITER = '|';
+
+  function buildRow() {
+    return COLUMNS.map(function (c) { return values[c.key] || ''; }).join(ROW_DELIMITER);
+  }
+
+  function countFilled() {
+    var n = 0;
+    COLUMNS.forEach(function (c) { if (values[c.key]) n++; });
+    return n;
+  }
+
+  function renderPreview() {
+    var html = '';
+    COLUMNS.forEach(function (c) {
+      var v = values[c.key];
+      html += '<div class="row-cell">';
+      html += '<div class="row-cell-label">' + escapeHtml(c.label) + '</div>';
+      html += '<div class="row-cell-value' + (v ? '' : ' empty') + ' code">' + (v ? escapeHtml(v) : '—') + '</div>';
+      html += '</div>';
+    });
+    rowStrip.innerHTML = html;
+
+    var label = countFilled() + '/' + COLUMNS.length + ' 입력됨';
+    fillCountEl.textContent = label;
+    stickyFillCountEl.textContent = label;
+  }
+
+  function doReset() {
+    COLUMNS.forEach(function (c) { values[c.key] = c.default || ''; });
+    persistState();
+    renderFields();
+    renderPreview();
+    showToast('초기화됐어요');
+  }
+
+  document.getElementById('resetBtn').addEventListener('click', doReset);
+  document.getElementById('stickyResetBtn').addEventListener('click', doReset);
+
+  function fallbackCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.top = '0';
+    ta.style.left = '0';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+    return ok;
+  }
+
+  function copyPlainText(text, statusMsg) {
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(function () {
+        showToast(statusMsg);
+      }, function () {
+        if (fallbackCopy(text)) showToast(statusMsg);
+        else showToast('자동 복사가 막혀 있어요');
+      });
+    } else {
+      if (fallbackCopy(text)) showToast(statusMsg);
+      else showToast('자동 복사가 막혀 있어요');
+    }
+  }
+
+  // Plain text only — no rich HTML <table> representation. That table
+  // version used to be included for richer paste targets (Notion, Slack,
+  // Gmail), but in Teams chat's compose box it backfires: Teams doesn't
+  // lay the <td> cells out side by side there, it drops each cell onto
+  // its own line instead of keeping them on one row. Plain "|"-separated
+  // text is what actually survives the real workflow (복사 → Teams
+  // 메시지로 보내기 → PC에서 다시 복사 → 엑셀 텍스트 나누기), so that's
+  // all this sends now.
+  function doCopy() {
+    var text = buildRow();
+    var statusMsg = '복사됐어요 · 엑셀에서 텍스트 나누기(기타 "|")로 나누세요';
+    copyPlainText(text, statusMsg);
+  }
+
+  document.getElementById('copyBtn').addEventListener('click', doCopy);
+  document.getElementById('stickyCopyBtn').addEventListener('click', doCopy);
+
+  var toastEl = document.getElementById('toast');
+  var toastTimer = null;
+  function showToast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { toastEl.classList.remove('show'); }, 2400);
+  }
+
+  function init() {
+    renderDate();
+    loadState();
+    renderFields();
+    renderPreview();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
