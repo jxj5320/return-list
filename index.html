@@ -565,7 +565,7 @@
       </div>
     </div>
     <div class="row-strip" id="rowStrip"></div>
-    <div class="preview-hint">가로로 넘기면 전체 열이 보여요 · 카톡/팀즈로 보냈다가 PC에서 다시 복사해도 안전해요 · 엑셀에 붙인 뒤 데이터 → 텍스트 나누기 → 기타 "|" 로 나누세요</div>
+    <div class="preview-hint">가로로 넘기면 전체 열이 보여요 · 카톡/팀즈로 보냈다가 PC에서 다시 복사해도 안전해요 · 값 사이가 넓게 띄어져 있어서 값 하나를 더블클릭하면 그 값만 바로 선택돼요</div>
   </section>
 
   <section class="section-card">
@@ -1093,13 +1093,12 @@
     if (list) list.classList.remove('show');
   }
 
-  // Tab characters don't survive a round trip through a chat message —
-  // Teams/카톡 render whitespace and re-copying the message text loses the
-  // real tab byte, so a row relayed through chat lands in one Excel cell.
-  // "|" is an ordinary printable character, so it comes through a chat
-  // copy-paste intact; Excel's 텍스트 나누기(Text to Columns) with 기타
-  // 구분 기호 "|" then splits it reliably every time.
-  var ROW_DELIMITER = '|';
+  // Values are joined with a wide run of plain spaces (not "|") so the
+  // copied line reads as separate double-click-selectable words — no
+  // Text-to-Columns step needed, just double-click one value, copy it,
+  // move to the next. Plain spaces are ordinary printable characters, so
+  // they survive a Teams/카톡 round trip intact just like "|" did.
+  var ROW_DELIMITER = '        ';
 
   function buildRow() {
     return COLUMNS.map(function (c) { return values[c.key] || ''; }).join(ROW_DELIMITER);
@@ -1172,13 +1171,13 @@
   // version used to be included for richer paste targets (Notion, Slack,
   // Gmail), but in Teams chat's compose box it backfires: Teams doesn't
   // lay the <td> cells out side by side there, it drops each cell onto
-  // its own line instead of keeping them on one row. Plain "|"-separated
+  // its own line instead of keeping them on one row. Plain space-separated
   // text is what actually survives the real workflow (복사 → Teams
-  // 메시지로 보내기 → PC에서 다시 복사 → 엑셀 텍스트 나누기), so that's
-  // all this sends now.
+  // 메시지로 보내기 → PC에서 다시 복사 → 값 하나씩 더블클릭해서 옮기기),
+  // so that's all this sends now.
   function doCopy() {
     var text = buildRow();
-    var statusMsg = '복사됐어요 · 엑셀에서 텍스트 나누기(기타 "|")로 나누세요';
+    var statusMsg = '복사됐어요 · 값 하나씩 더블클릭해서 옮기세요';
     copyPlainText(text, statusMsg);
   }
 
