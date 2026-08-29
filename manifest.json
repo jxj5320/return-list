@@ -1,0 +1,15 @@
+{
+  "name": "회송리스트",
+  "short_name": "회송리스트",
+  "description": "회송 항목 입력 · 촬영/사진첨부로 상품바코드 자동 인식",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#EFF1EC",
+  "theme_color": "#35648F",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" }
+  ]
+}
